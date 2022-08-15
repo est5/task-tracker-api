@@ -21,6 +21,9 @@ public class TaskModelAssembler implements RepresentationModelAssembler<Task, En
             taskModel.add(
                     linkTo(methodOn(TaskController.class).cancel(entity.getId())).withRel("cancel"),
                     linkTo(methodOn(TaskController.class).complete(entity.getId())).withRel("complete"));
+        } else {
+            taskModel.add(
+                    linkTo(methodOn(TaskController.class).undo(entity.getId())).withRel("undo"));
         }
 
         return taskModel;

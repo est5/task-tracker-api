@@ -82,7 +82,7 @@ public class TaskController {
     @PutMapping("/tasks/{id}/complete")
     ResponseEntity<?> complete(@PathVariable Long id) {
 
-        Task task = taskRepository.findById(id) //
+        Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new TaskNotFoundException(id));
 
         if (task.getStatus() == Status.IN_PROGRESS) {
@@ -95,7 +95,26 @@ public class TaskController {
                 .header(HttpHeaders.CONTENT_TYPE, MediaTypes.HTTP_PROBLEM_DETAILS_JSON_VALUE)
                 .body(Problem.create()
                         .withTitle("Method not allowed")
-                        .withDetail("You can't complete an task that is in the " + task.getStatus() + " status"));
+                        .withDetail("You can't complete a task that is in the " + task.getStatus() + " status"));
+    }
+
+    @PutMapping("/tasks/{id}/undo")
+    ResponseEntity<?> undo(@PathVariable Long id) {
+
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new TaskNotFoundException(id));
+
+        if (task.getStatus() != Status.IN_PROGRESS) {
+            task.setStatus(Status.IN_PROGRESS);
+            return ResponseEntity.ok(assembler.toModel(taskRepository.save(task)));
+        }
+
+        return ResponseEntity
+                .status(HttpStatus.METHOD_NOT_ALLOWED)
+                .header(HttpHeaders.CONTENT_TYPE, MediaTypes.HTTP_PROBLEM_DETAILS_JSON_VALUE)
+                .body(Problem.create()
+                        .withTitle("Method not allowed")
+                        .withDetail("You can't undo a task that is in the " + task.getStatus() + " status"));
     }
 
 }
